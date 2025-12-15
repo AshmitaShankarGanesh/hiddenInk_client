@@ -1,0 +1,40 @@
+.todolist {
+  max-width: 900px;
+  margin: auto;
+  padding: 24px;
+  background: #f9fafb;
+  border-radius: 8px;
+  box-shadow: 0 4px 12px rgba(0,0,0,0.08);
+}
+
+.box {
+  display: flex;
+  gap: 12px;
+  margin-bottom: 24px; /* ✅ FIXED */
+}
+
+.button {
+  height: 56px;
+}
+
+ul {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+}
+
+.list {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  background: white;
+  padding: 12px 16px;
+  margin-bottom: 12px;
+  border-radius: 6px;
+  box-shadow: 0 2px 6px rgba(0,0,0,0.05);
+}
+
+.list h3 {
+  margin: 0;
+  font-size: 1rem;
+}
