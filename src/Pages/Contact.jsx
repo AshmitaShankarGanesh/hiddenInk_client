@@ -44,7 +44,7 @@ const Contact = () => {
                 name="first-name"
                 type="text"
                 autoComplete="given-name"
-                className="block w-full rounded-md bg-black/5 px-3.5 py-2 text-base text-black outline-1 -outline-offset-1 outline-white/10 placeholder:text-gray-500 focus:outline-2 focus:-outline-offset-2 focus:outline-indigo-500"
+                className="block w-full rounded-md bg-white dark:bg-gray-700 px-3.5 py-2 text-base text-gray-900 dark:text-white outline-1 -outline-offset-1 outline-gray-300 dark:outline-gray-600 placeholder:text-gray-500 dark:placeholder:text-gray-400 focus:outline-2 focus:-outline-offset-2 focus:outline-indigo-500"
               />
             </div>
           </div>
@@ -68,7 +68,7 @@ const Contact = () => {
           <div className="sm:col-span-2">
             <label
               htmlFor="email"
-              className="block text-sm/6 font-semibold text-black"
+              className="block text-sm/6 font-semibold text-gray-900 dark:text-white"
             >
               Email
             </label>
@@ -85,7 +85,7 @@ const Contact = () => {
           <div className="sm:col-span-2">
             <label
               htmlFor="phone-number"
-              className="block text-sm/6 font-semibold text-black"
+              className="block text-sm/6 font-semibold text-gray-900 dark:text-white"
             >
               Phone number
             </label>
@@ -122,7 +122,7 @@ const Contact = () => {
           <div className="sm:col-span-2">
             <label
               htmlFor="message"
-              className="block text-sm/6 font-semibold text-black"
+              className="block text-sm/6 font-semibold text-gray-900 dark:text-white"
             >
               Message
             </label>

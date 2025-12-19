@@ -1,11 +1,55 @@
 @import "tailwindcss";
 
+/* Global resets only */
+html,
 body {
-  background-color: white;
-  color: black;
+  margin: 0;
+  padding: 0;
 }
 
-.dark body {
-  background-color: black;
-  color: white;
+/* Smooth transitions (this part is OK) */
+*,
+*::before,
+*::after {
+  transition-property: background-color, border-color, color, fill, stroke;
+  transition-timing-function: cubic-bezier(0.4, 0, 0.2, 1);
+  transition-duration: 300ms;
+}
+
+/* Prevent transitions on first load */
+.prevent-transition * {
+  transition: none !important;
+}
+
+/* Animations are still allowed */
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(12px);
+  }
+
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.animate-fadeIn {
+  animation: fadeIn 0.6s ease forwards;
+}
+
+@keyframes slide-up {
+  from {
+    opacity: 0;
+    transform: translate(-50%, 20px);
+  }
+
+  to {
+    opacity: 1;
+    transform: translate(-50%, 0);
+  }
+}
+
+.animate-slide-up {
+  animation: slide-up 0.3s ease-out;
 }

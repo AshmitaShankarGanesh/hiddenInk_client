@@ -1,25 +1,29 @@
-import React, {useEffect, useState} from 'react';
-import { useTheme } from "./context/ThemeContext";
+import React from "react";
+import { BrowserRouter as Router, Routes, Route, useLocation } from "react-router-dom";
 
-import Header from './Components/Header';
-import Footer from './Components/Footer';
-import Home from './Pages/Home';
-import About from './Pages/About';
-import Contact from './Pages/Contact';
-import ToDo from './Pages/ToDo';
-import Login from './Pages/Login';
-import Signup from './Pages/Signup';
-import AdminDashBoard from "./Dashboard/AdminDashBoard";
-import UserDashBoard from "./Dashboard/UserDashBoard";
+import Header from "./Components/Header";
+import Footer from "./Components/Footer";
 
-import { BrowserRouter as Router, Routes, Route, useLocation } from 'react-router-dom';
+import Home from "./Pages/Home";
+import About from "./Pages/About";
+import Contact from "./Pages/Contact";
+import Login from "./Pages/Login";
+import Signup from "./Pages/Signup";
 
+import UserDashboard from "./Dashboard/UserDashboard";
+import UserLayout from "./Dashboard/UserLayout";
+import UserRoute from "./routes/UserRoute";
+import UserTodos from "./Dashboard/UserTodos";
+import UserNotes from "./Dashboard/UserNotes";
+
+
+import AdminLayout from "./admin/AdminLayout";
+import AdminDashBoard from "./admin/AdminDashBoard";
+import AdminUsers from "./admin/AdminUsers";
 
 const Layout = () => {
   const location = useLocation();
-
-  const hide = ['/login', '/signup', '/admin', '/user'];
-  const hideLayout = hide.some(path =>
+  const hideLayout = ["/login", "/signup", "/user", "/admin"].some(path =>
     location.pathname.startsWith(path)
   );
 
@@ -28,34 +32,38 @@ const Layout = () => {
       {!hideLayout && <Header />}
 
       <Routes>
-        <Route path='/' element={<Home />} />
-        <Route path='/about' element={<About />} />
-        <Route path='/contact' element={<Contact />} />
-        <Route path='/todo' element={<ToDo />} />
-        <Route path='/login' element={<Login />} />
-        <Route path='/signup' element={<Signup />} />
-        <Route path='/admin' element={<AdminDashBoard />} />
-        <Route path='/user' element={<UserDashBoard />} />
+        <Route path="/" element={<Home />} />
+        <Route path="/about" element={<About />} />
+        <Route path="/contact" element={<Contact />} />
+        <Route path="/login" element={<Login />} />
+        <Route path="/signup" element={<Signup />} />
+        
+        {/* USER */}
+        <Route path="/user" element={<UserLayout />}>
+  <Route index element={<UserDashboard />} />
+  <Route path="dashboard" element={<UserDashboard />} />
+  <Route path="notes" element={<UserNotes />} />
+  <Route path="todos" element={<UserTodos />} />
+</Route>
+
+
+
+        {/* ADMIN */}
+        <Route path="/admin" element={<AdminLayout />}>
+          <Route path="dashboard" element={<AdminDashBoard />} />
+          <Route path="users" element={<AdminUsers />} />
+        </Route>
       </Routes>
 
       {!hideLayout && <Footer />}
     </>
-  )
-}
-
-
-const App = () => {
-  const { theme } = useTheme();
-
-  return (
-    <div className={`min-h-screen ${theme === "dark" ? "bg-black text-white" : "bg-white text-black"}`}>
-      <Router>
-        <Layout />
-      </Router>
-    </div>
   );
 };
 
+const App = () => (
+  <Router>
+    <Layout />
+  </Router>
+);
+
 export default App;
-
-

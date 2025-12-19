@@ -1,76 +1,90 @@
-import React from 'react';
-import { Link } from "react-router-dom";
+import React, { useState } from "react";
+import { Link, useNavigate } from "react-router-dom";
+import axios from "axios";
 import logo from "../assets/image.png";
-import { FcGoogle } from "react-icons/fc";
-import { FaFacebook } from "react-icons/fa";
 
 const Login = () => {
+  const [email, setEmail] = useState("");
+  const [password, setPassword] = useState("");
+  const navigate = useNavigate();
+
+  const handleSubmit = async (e) => {
+    e.preventDefault();
+
+    try {
+      const res = await axios.post(
+        "http://localhost:5000/api/auth/login",
+        { email, password },
+        { headers: { "Content-Type": "application/json" } }
+      );
+
+      const { token, user } = res.data;
+
+      // ✅ store auth data
+      localStorage.setItem("token", token);
+      localStorage.setItem("user", JSON.stringify(user));
+      localStorage.setItem("role", user.role);
+      localStorage.setItem("name", user.name);
+      localStorage.setItem("userId", res.data.user._id);
+
+
+      // ✅ role-based redirect
+      if (user.role === "admin") {
+        navigate("/admin/dashboard");
+      } else {
+        navigate("/user");
+      }
+    } catch (err) {
+      console.error(err.response?.data || err.message);
+      alert("Invalid credentials");
+    }
+  };
+
   return (
-    <div className="min-h-screen flex items-center justify-center bg-linear-to-br from-gray-100 to-gray-200 px-4">
+    <div className="min-h-screen flex items-center justify-center bg-gray-100 px-4">
       <div className="bg-white p-6 rounded-2xl shadow-lg w-full max-w-md">
 
-        
         <div className="text-center mb-4">
-          <img src={logo} alt="HiddenInk Logo" className="w-25 mx-auto mb-1" />
-          <h2 className="text-xl font-semibold text-gray-700">Welcome Back</h2>
-          <p className="text-gray-500 text-sm">Login to continue</p>
+          <img
+            src={logo}
+            alt="HiddenInk Logo"
+            className="w-24 mx-auto mb-2"
+          />
+          <h2 className="text-xl font-semibold text-gray-700">
+            Welcome Back
+          </h2>
         </div>
 
-        
-        <form className="space-y-3">
-          <input 
-            type="email" 
-            placeholder="Email" 
-            className="w-full p-2.5 rounded-lg border border-gray-300 focus:outline-none focus:ring-2 focus:ring-blue-500"
+        <form onSubmit={handleSubmit} className="space-y-3">
+          <input
+            type="email"
+            placeholder="Email"
+            value={email}
+            onChange={(e) => setEmail(e.target.value)}
+            className="w-full p-2.5 rounded-lg border"
+            required
           />
 
-          <input 
-            type="password" 
-            placeholder="Password" 
-            className="w-full p-2.5 rounded-lg border border-gray-300 focus:outline-none focus:ring-2 focus:ring-blue-500"
+          <input
+            type="password"
+            placeholder="Password"
+            value={password}
+            onChange={(e) => setPassword(e.target.value)}
+            className="w-full p-2.5 rounded-lg border"
+            required
           />
 
-          
-          <div className="flex items-center text-sm">
-            <label className="flex items-center gap-2 text-gray-600">
-              <input type="checkbox" className="rounded border-gray-300" />
-              Remember me
-            </label>
-          </div>
-
-          
-          <button className="w-full bg-blue-600 text-white p-2.5 rounded-lg hover:bg-blue-700 transition">
+          <button
+            type="submit"
+            className="w-full bg-blue-600 text-white p-2.5 rounded-lg hover:bg-blue-700"
+          >
             Login
           </button>
-
-          
-          <Link
-            to="/forgot-password"
-            className="block text-center text-sm text-blue-600 hover:underline"
-          >
-            Forgot your password?
-          </Link>
         </form>
 
-        
-        <div className="flex items-center my-4">
-          <div className="grow h-px bg-gray-300"></div>
-          <span className="px-3 text-xs text-gray-500">or</span>
-          <div className="grow h-px bg-gray-300"></div>
-        </div>
-
-        
-        <div className="space-y-2">
-          <button className="w-full flex items-center justify-center gap-3 border border-gray-300 p-2.5 rounded-lg hover:bg-gray-100 transition">
-            <FcGoogle size={18} />
-            Sign in with Google
-          </button>
-        </div>
-
-        
-        <p className="text-center mt-3 text-sm text-gray-600">
+        <p className="text-center mt-3 text-sm">
           Don’t have an account?{" "}
-          <Link to="/signup" className="text-blue-600 font-medium hover:underline">
+          <Link to="/signup" className="text-blue-600 font-medium">
             Sign Up
           </Link>
         </p>

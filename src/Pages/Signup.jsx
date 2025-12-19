@@ -1,67 +1,82 @@
-import React from 'react';
-import { Link } from "react-router-dom";
+import React, { useState } from "react";
+import { Link, useNavigate } from "react-router-dom";
+import axios from "axios";
 import logo from "../assets/image.png";
-import { FcGoogle } from "react-icons/fc";
-import { FaFacebook } from "react-icons/fa";
 
 const Signup = () => {
+  const navigate = useNavigate();
+
+  const [form, setForm] = useState({
+    name: "",
+    email: "",
+    password: "",
+  });
+
+  const handleChange = (e) => {
+    setForm({ ...form, [e.target.name]: e.target.value });
+  };
+
+  const handleSubmit = async (e) => {
+    e.preventDefault();
+
+    try {
+      await axios.post("http://localhost:5000/api/auth/signup", form);
+      navigate("/login"); // ✅ redirect after signup
+    } catch (err) {
+      alert(err.response?.data?.msg || "Signup failed");
+    }
+  };
+
   return (
-    <div className="min-h-screen flex items-center justify-center bg-linear-to-br from-gray-100 to-gray-200 px-4">
+    <div className="min-h-screen flex items-center justify-center bg-gray-100 px-4">
       <div className="bg-white p-6 rounded-2xl shadow-lg w-full max-w-md">
 
-        
         <div className="text-center mb-4">
-          <img src={logo} alt="HiddenInk Logo" className="w-25 mx-auto mb-1" />
+          <img src={logo} alt="HiddenInk Logo" className="w-24 mx-auto mb-1" />
           <h2 className="text-xl font-semibold text-gray-700">Create Account</h2>
           <p className="text-gray-500 text-sm">Join HiddenInk today</p>
         </div>
 
-        
-        <form className="space-y-3">
-          <input 
-            type="text" 
+        <form onSubmit={handleSubmit} className="space-y-3">
+
+          <input
+            name="name"
+            value={form.name}
+            onChange={handleChange}
             placeholder="Full Name"
-            className="w-full p-2.5 rounded-lg border border-gray-300 focus:outline-none focus:ring-2 focus:ring-blue-500"
+            className="w-full p-2.5 rounded-lg border"
+            required
           />
 
-          <input 
-            type="email" 
+          <input
+            name="email"
+            type="email"
+            value={form.email}
+            onChange={handleChange}
             placeholder="Email"
-            className="w-full p-2.5 rounded-lg border border-gray-300 focus:outline-none focus:ring-2 focus:ring-blue-500"
+            className="w-full p-2.5 rounded-lg border"
+            required
           />
 
-          <input 
-            type="password" 
+          <input
+            name="password"
+            type="password"
+            value={form.password}
+            onChange={handleChange}
             placeholder="Password"
-            className="w-full p-2.5 rounded-lg border border-gray-300 focus:outline-none focus:ring-2 focus:ring-blue-500"
+            className="w-full p-2.5 rounded-lg border"
+            required
           />
 
-          <button className="w-full bg-blue-600 text-white p-2.5 rounded-lg hover:bg-blue-700 transition">
+          <button className="w-full bg-blue-600 text-white p-2.5 rounded-lg">
             Sign Up
           </button>
+
         </form>
 
-        
-        <div className="flex items-center my-4">
-          <div className="grow h-px bg-gray-300"></div>
-          <span className="px-3 text-xs text-gray-500">or</span>
-          <div className="grow h-px bg-gray-300"></div>
-        </div>
-
-        
-        <div className="space-y-2">
-          <button className="w-full flex items-center justify-center gap-3 border border-gray-300 p-2.5 rounded-lg hover:bg-gray-100 transition">
-            <FcGoogle size={18} />
-            Sign up with Google
-          </button>
-
-          
-        </div>
-
-        
-        <p className="text-center mt-3 text-sm text-gray-600">
+        <p className="text-center mt-3 text-sm">
           Already have an account?{" "}
-          <Link to="/login" className="text-blue-600 font-medium hover:underline">
+          <Link to="/login" className="text-blue-600 font-medium">
             Login
           </Link>
         </p>
