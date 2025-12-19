@@ -22,10 +22,10 @@ const UserDashboard = () => {
       if (!token) return;
 
       const [notesRes, todosRes] = await Promise.all([
-        axios.get("http://localhost:5000/api/notes", {
+        axios.get("https://hiddenink-server-1jes.onrender.com/api/notes", {
           headers: { Authorization: `Bearer ${token}` },
         }),
-        axios.get("http://localhost:5000/api/todos", {
+        axios.get("https://hiddenink-server-1jes.onrender.com/api/todos", {
           headers: { Authorization: `Bearer ${token}` },
         }),
       ]);

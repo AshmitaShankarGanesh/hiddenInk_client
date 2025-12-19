@@ -20,7 +20,7 @@ const Signup = () => {
     e.preventDefault();
 
     try {
-      await axios.post("http://localhost:5000/api/auth/signup", form);
+      await axios.post("https://hiddenink-server-1jes.onrender.com/api/auth/signup", form);
       navigate("/login"); // ✅ redirect after signup
     } catch (err) {
       alert(err.response?.data?.msg || "Signup failed");

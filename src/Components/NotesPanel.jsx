@@ -26,7 +26,7 @@ export default function NotesPanel() {
   const fetchNotes = async () => {
     try {
       if (!token) return;
-      const res = await axios.get("http://localhost:5000/api/notes", {
+      const res = await axios.get("https://hiddenink-server-1jes.onrender.com/api/notes", {
         headers: { Authorization: `Bearer ${token}` },
       });
       setNotes(res.data);
@@ -66,7 +66,7 @@ export default function NotesPanel() {
   const unlockNote = async () => {
     try {
       const res = await axios.post(
-        `http://localhost:5000/api/notes/${passwordNote._id}/unlock`,
+        `https://hiddenink-server-1jes.onrender.com/api/notes/${passwordNote._id}/unlock`,
         { password },
         { headers: { Authorization: `Bearer ${token}` } }
       );
@@ -96,7 +96,7 @@ export default function NotesPanel() {
 
   const updateNote = async () => {
     await axios.put(
-      `http://localhost:5000/api/notes/${editNote._id}`,
+      `https://hiddenink-server-1jes.onrender.com/api/notes/${editNote._id}`,
       { title, content, isLocked: lock },
       { headers: { Authorization: `Bearer ${token}` } }
     );
@@ -106,7 +106,7 @@ export default function NotesPanel() {
 
   /* ---------------- DELETE ---------------- */
   const deleteNote = async (id) => {
-    await axios.delete(`http://localhost:5000/api/notes/${id}`, {
+    await axios.delete(`https://hiddenink-server-1jes.onrender.com/api/notes/${id}`, {
       headers: { Authorization: `Bearer ${token}` },
     });
     fetchNotes();
@@ -120,9 +120,8 @@ export default function NotesPanel() {
           <button
             key={f}
             onClick={() => setFilter(f)}
-            className={`px-4 py-1 rounded-full ${
-              filter === f ? "bg-blue-600 text-white" : "bg-gray-200"
-            }`}
+            className={`px-4 py-1 rounded-full ${filter === f ? "bg-blue-600 text-white" : "bg-gray-200"
+              }`}
           >
             {f}
           </button>

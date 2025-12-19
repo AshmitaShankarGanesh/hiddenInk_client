@@ -9,7 +9,7 @@ const NotesList = () => {
     const fetchNotes = async () => {
       const token = localStorage.getItem("token");
 
-      const res = await axios.get("http://localhost:5000/api/notes", {
+      const res = await axios.get("https://hiddenink-server-1jes.onrender.com/api/notes", {
         headers: {
           Authorization: `Bearer ${token}`,
         },

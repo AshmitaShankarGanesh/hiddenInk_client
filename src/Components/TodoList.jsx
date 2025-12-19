@@ -57,10 +57,9 @@ const SortableTodoItem = ({
       exit={{ opacity: 0, scale: 0.95 }}
       className={`flex justify-between items-center
         px-4 py-3 rounded-lg
-        ${
-          item.completed
-            ? "bg-green-50 dark:bg-green-900/30"
-            : "bg-gray-100 dark:bg-gray-800"
+        ${item.completed
+          ? "bg-green-50 dark:bg-green-900/30"
+          : "bg-gray-100 dark:bg-gray-800"
         }`}
     >
       {/* LEFT */}
@@ -90,10 +89,9 @@ const SortableTodoItem = ({
           <span
             onClick={() => toggleComplete(item)}
             className={`font-medium cursor-pointer
-              ${
-                item.completed
-                  ? "line-through text-gray-500"
-                  : "text-gray-900 dark:text-white"
+              ${item.completed
+                ? "line-through text-gray-500"
+                : "text-gray-900 dark:text-white"
               }`}
           >
             {item.todo}
@@ -155,7 +153,7 @@ const TodoList = () => {
 
   const getTodo = async () => {
     const res = await axios.get(
-      "http://localhost:5000/api/todos",
+      "https://hiddenink-server-1jes.onrender.com/api/todos",
       authHeader
     );
     setTodoArray(res.data);
@@ -165,7 +163,7 @@ const TodoList = () => {
     if (!todo.trim()) return;
 
     await axios.post(
-      "http://localhost:5000/api/todos",
+      "https://hiddenink-server-1jes.onrender.com/api/todos",
       { todo },
       authHeader
     );
@@ -180,7 +178,7 @@ const TodoList = () => {
 
     const timer = setTimeout(async () => {
       await axios.delete(
-        `http://localhost:5000/api/todos/${item._id}`,
+        `https://hiddenink-server-1jes.onrender.com/api/todos/${item._id}`,
         authHeader
       );
       setRecentlyDeleted(null);
@@ -197,7 +195,7 @@ const TodoList = () => {
 
   const toggleComplete = async (item) => {
     await axios.put(
-      `http://localhost:5000/api/todos/${item._id}`,
+      `https://hiddenink-server-1jes.onrender.com/api/todos/${item._id}`,
       { completed: !item.completed },
       authHeader
     );
@@ -213,7 +211,7 @@ const TodoList = () => {
     if (!editingText.trim()) return;
 
     await axios.put(
-      `http://localhost:5000/api/todos/${id}`,
+      `https://hiddenink-server-1jes.onrender.com/api/todos/${id}`,
       { todo: editingText },
       authHeader
     );
@@ -284,21 +282,21 @@ const TodoList = () => {
           <ul className="space-y-3">
             <AnimatePresence>
               {todoArray.map(item => {
-  console.log(item);   
-  return (
-    <SortableTodoItem
-      key={item._id}
-      item={item}
-      toggleComplete={toggleComplete}
-      startEdit={startEdit}
-      saveEdit={saveEdit}
-      editingId={editingId}
-      editingText={editingText}
-      setEditingText={setEditingText}
-      deleteTodo={deleteTodo}
-    />
-  );
-})}
+                console.log(item);
+                return (
+                  <SortableTodoItem
+                    key={item._id}
+                    item={item}
+                    toggleComplete={toggleComplete}
+                    startEdit={startEdit}
+                    saveEdit={saveEdit}
+                    editingId={editingId}
+                    editingText={editingText}
+                    setEditingText={setEditingText}
+                    deleteTodo={deleteTodo}
+                  />
+                );
+              })}
 
             </AnimatePresence>
           </ul>

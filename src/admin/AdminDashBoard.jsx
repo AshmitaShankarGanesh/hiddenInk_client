@@ -17,10 +17,10 @@ const AdminDashboard = () => {
     const fetchData = async () => {
       try {
         const [usersRes, statsRes] = await Promise.all([
-          axios.get("http://localhost:5000/api/admin/users", {
+          axios.get("https://hiddenink-server-1jes.onrender.com/api/admin/users", {
             headers: { Authorization: `Bearer ${token}` },
           }),
-          axios.get("http://localhost:5000/api/admin/stats", {
+          axios.get("https://hiddenink-server-1jes.onrender.com/api/admin/stats", {
             headers: { Authorization: `Bearer ${token}` },
           }),
         ]);
