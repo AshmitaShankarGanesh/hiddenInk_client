@@ -10,9 +10,8 @@ import Contact from "./Pages/Contact";
 import Login from "./Pages/Login";
 import Signup from "./Pages/Signup";
 
-import UserDashboard from "./Dashboard/UserDashboard";
+import UserDashboard from "./Dashboard/UserDashBoard";
 import UserLayout from "./Dashboard/UserLayout";
-import UserRoute from "./routes/UserRoute";
 import UserTodos from "./Dashboard/UserTodos";
 import UserNotes from "./Dashboard/UserNotes";
 
