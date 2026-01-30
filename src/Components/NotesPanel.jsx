@@ -3,46 +3,58 @@ import axios from "axios";
 
 export default function NotesPanel() {
   const [notes, setNotes] = useState([]);
-  const [filter, setFilter] = useState("all");
-
   const [selectedNote, setSelectedNote] = useState(null);
   const [editNote, setEditNote] = useState(null);
+  const [createMode, setCreateMode] = useState(false);
+
+  const [title, setTitle] = useState("");
+  const [content, setContent] = useState("");
+  const [lock, setLock] = useState(false);
+  const [lockPassword, setLockPassword] = useState("");
 
   const [unlockedContent, setUnlockedContent] = useState({});
   const [passwordNote, setPasswordNote] = useState(null);
   const [password, setPassword] = useState("");
 
-  const [title, setTitle] = useState("");
-  const [content, setContent] = useState("");
-  const [lock, setLock] = useState(false);
-
   const token = localStorage.getItem("token");
+  const API = "https://hiddenink-server-1jes.onrender.com/api/notes";
 
-  /* ---------------- FETCH ---------------- */
   useEffect(() => {
     fetchNotes();
   }, []);
 
   const fetchNotes = async () => {
-    try {
-      if (!token) return;
-      const res = await axios.get("https://hiddenink-server-1jes.onrender.com/api/notes", {
-        headers: { Authorization: `Bearer ${token}` },
-      });
-      setNotes(res.data);
-    } catch (err) {
-      console.error(err);
-    }
+    const res = await axios.get(API, {
+      headers: { Authorization: `Bearer ${token}` },
+    });
+    setNotes(res.data);
   };
 
-  /* ---------------- FILTER ---------------- */
-  const filteredNotes = notes.filter((note) => {
-    if (filter === "locked") return note.isLocked;
-    if (filter === "unlocked") return !note.isLocked;
-    return true;
-  });
+  const resetState = () => {
+    setTitle("");
+    setContent("");
+    setLock(false);
+    setLockPassword("");
+    setEditNote(null);
+    setCreateMode(false);
+    setSelectedNote(null);
+  };
 
-  /* ---------------- VIEW ---------------- */
+  const createNote = async () => {
+    await axios.post(
+      API,
+      {
+        title,
+        content,
+        isLocked: lock,
+        password: lock ? lockPassword : null,
+      },
+      { headers: { Authorization: `Bearer ${token}` } }
+    );
+    resetState();
+    fetchNotes();
+  };
+
   const openNote = (note) => {
     if (note.isLocked && !unlockedContent[note._id]) {
       setPasswordNote(note);
@@ -51,22 +63,10 @@ export default function NotesPanel() {
     setSelectedNote(note);
   };
 
-  const closeView = () => {
-    if (selectedNote?.isLocked) {
-      setUnlockedContent((prev) => {
-        const copy = { ...prev };
-        delete copy[selectedNote._id]; // auto re-lock
-        return copy;
-      });
-    }
-    setSelectedNote(null);
-  };
-
-  /* ---------------- UNLOCK ---------------- */
   const unlockNote = async () => {
     try {
       const res = await axios.post(
-        `https://hiddenink-server-1jes.onrender.com/api/notes/${passwordNote._id}/unlock`,
+        `${API}/${passwordNote._id}/unlock`,
         { password },
         { headers: { Authorization: `Bearer ${token}` } }
       );
@@ -77,146 +77,141 @@ export default function NotesPanel() {
       }));
 
       setSelectedNote(passwordNote);
-      setPasswordNote(null);
       setPassword("");
-    } catch {
+      setPasswordNote(null);
+    } catch (err) {
       alert("Wrong password");
     }
   };
 
-  /* ---------------- EDIT ---------------- */
   const startEdit = () => {
-    const note = selectedNote;
-    setTitle(note.title);
-    setContent(note.isLocked ? unlockedContent[note._id] : note.content);
-    setLock(note.isLocked);
-    setEditNote(note);
+    setTitle(selectedNote.title);
+    setContent(
+      selectedNote.isLocked
+        ? unlockedContent[selectedNote._id]
+        : selectedNote.content
+    );
+    setLock(selectedNote.isLocked);
+    setEditNote(selectedNote);
     setSelectedNote(null);
   };
 
   const updateNote = async () => {
     await axios.put(
-      `https://hiddenink-server-1jes.onrender.com/api/notes/${editNote._id}`,
-      { title, content, isLocked: lock },
+      `${API}/${editNote._id}`,
+      {
+        title,
+        content,
+        isLocked: lock,
+        newPassword: lock ? lockPassword : null,
+      },
       { headers: { Authorization: `Bearer ${token}` } }
     );
-    setEditNote(null);
-    fetchNotes();
-  };
-
-  /* ---------------- DELETE ---------------- */
-  const deleteNote = async (id) => {
-    await axios.delete(`https://hiddenink-server-1jes.onrender.com/api/notes/${id}`, {
-      headers: { Authorization: `Bearer ${token}` },
-    });
+    resetState();
     fetchNotes();
   };
 
   return (
-    <div className="p-6">
-      {/* FILTERS */}
-      <div className="flex gap-3 mb-6">
-        {["all", "locked", "unlocked"].map((f) => (
-          <button
-            key={f}
-            onClick={() => setFilter(f)}
-            className={`px-4 py-1 rounded-full ${filter === f ? "bg-blue-600 text-white" : "bg-gray-200"
-              }`}
-          >
-            {f}
-          </button>
-        ))}
-      </div>
+    <div className="p-6 w-full relative z-10">
+      <button
+        type="button"
+        onClick={() => setCreateMode(true)}
+        className="bg-blue-600 text-white px-4 py-2 rounded mb-4"
+      >
+        + Create
+      </button>
 
-      {/* NOTES */}
-      {filteredNotes.map((note) => (
+      {/* NOTES LIST */}
+      {notes.map((note) => (
         <div
           key={note._id}
-          className="border rounded-xl p-4 mb-4 cursor-pointer"
           onClick={() => openNote(note)}
+          className="border p-3 mb-2 cursor-pointer flex justify-between"
         >
-          <div className="font-semibold">{note.title}</div>
-          {!note.isLocked && (
-            <p className="text-sm text-gray-600 truncate">{note.content}</p>
-          )}
-          {note.isLocked && <p className="text-sm">🔒 Locked</p>}
-          <button
-            className="text-red-500 mt-2"
-            onClick={(e) => {
-              e.stopPropagation();
-              deleteNote(note._id);
-            }}
-          >
-            Delete
-          </button>
+          <span>{note.title}</span>
+          {note.isLocked && <span>🔒</span>}
         </div>
       ))}
 
-      {/* VIEW MODAL */}
+      {/* VIEW NOTE */}
       {selectedNote && (
-        <div className="fixed inset-0 bg-black/40 flex items-center justify-center">
-          <div className="bg-white p-6 rounded-xl w-[500px]">
-            <h2 className="text-xl font-bold mb-2">{selectedNote.title}</h2>
-            <p className="whitespace-pre-wrap mb-6">
-              {selectedNote.isLocked
-                ? unlockedContent[selectedNote._id]
-                : selectedNote.content}
-            </p>
-            <div className="flex justify-end gap-3">
-              <button onClick={startEdit} className="bg-blue-600 text-white px-4 py-2 rounded">
-                Edit
-              </button>
-              <button onClick={closeView} className="bg-gray-300 px-4 py-2 rounded">
-                Close
-              </button>
-            </div>
-          </div>
+        <div className="border p-4 mt-4">
+          <h2 className="font-bold mb-2">{selectedNote.title}</h2>
+          <p className="mb-3">
+            {selectedNote.isLocked
+              ? unlockedContent[selectedNote._id]
+              : selectedNote.content}
+          </p>
+          <button
+            onClick={startEdit}
+            className="bg-yellow-500 px-3 py-1 rounded"
+          >
+            Edit
+          </button>
         </div>
       )}
 
-      {/* PASSWORD MODAL */}
+      {/* UNLOCK NOTE */}
       {passwordNote && (
-        <div className="fixed inset-0 bg-black/40 flex items-center justify-center">
-          <div className="bg-white p-6 rounded-xl w-[400px]">
-            <h2 className="font-bold mb-4">Unlock note</h2>
+        <div className="border p-4 mt-4">
+          <h3 className="mb-2">Enter password</h3>
+          <input
+            type="password"
+            value={password}
+            onChange={(e) => setPassword(e.target.value)}
+            className="border px-2 py-1 mr-2"
+          />
+          <button
+            onClick={unlockNote}
+            className="bg-green-600 text-white px-3 py-1 rounded"
+          >
+            Unlock
+          </button>
+        </div>
+      )}
+
+      {/* CREATE / EDIT MODAL */}
+      {(createMode || editNote) && (
+        <div className="border p-4 mt-4">
+          <input
+            placeholder="Title"
+            value={title}
+            onChange={(e) => setTitle(e.target.value)}
+            className="border w-full mb-2 px-2 py-1"
+          />
+
+          <textarea
+            placeholder="Content"
+            value={content}
+            onChange={(e) => setContent(e.target.value)}
+            className="border w-full mb-2 px-2 py-1"
+          />
+
+          <label className="block mb-2">
+            <input
+              type="checkbox"
+              checked={lock}
+              onChange={(e) => setLock(e.target.checked)}
+            />{" "}
+            Lock this note
+          </label>
+
+          {lock && (
             <input
               type="password"
-              className="border w-full p-2 mb-4"
-              value={password}
-              onChange={(e) => setPassword(e.target.value)}
+              placeholder="Password"
+              value={lockPassword}
+              onChange={(e) => setLockPassword(e.target.value)}
+              className="border w-full mb-2 px-2 py-1"
             />
-            <div className="flex justify-end gap-3">
-              <button onClick={unlockNote} className="bg-blue-600 text-white px-4 py-2 rounded">
-                Unlock
-              </button>
-              <button onClick={() => setPasswordNote(null)} className="bg-gray-300 px-4 py-2 rounded">
-                Cancel
-              </button>
-            </div>
-          </div>
-        </div>
-      )}
+          )}
 
-      {/* EDIT MODAL */}
-      {editNote && (
-        <div className="fixed inset-0 bg-black/40 flex items-center justify-center">
-          <div className="bg-white p-6 rounded-xl w-[500px]">
-            <h2 className="font-bold mb-4">Edit Note</h2>
-            <input className="border w-full p-2 mb-3" value={title} onChange={(e) => setTitle(e.target.value)} />
-            <textarea className="border w-full p-2 h-40 mb-3" value={content} onChange={(e) => setContent(e.target.value)} />
-            <label className="flex gap-2 mb-4">
-              <input type="checkbox" checked={lock} onChange={(e) => setLock(e.target.checked)} />
-              Lock this note
-            </label>
-            <div className="flex justify-end gap-3">
-              <button onClick={updateNote} className="bg-blue-600 text-white px-4 py-2 rounded">
-                Update
-              </button>
-              <button onClick={() => setEditNote(null)} className="bg-gray-300 px-4 py-2 rounded">
-                Cancel
-              </button>
-            </div>
-          </div>
+          <button
+            onClick={editNote ? updateNote : createNote}
+            className="bg-blue-600 text-white px-4 py-2 rounded"
+          >
+            {editNote ? "Update" : "Create"}
+          </button>
         </div>
       )}
     </div>
