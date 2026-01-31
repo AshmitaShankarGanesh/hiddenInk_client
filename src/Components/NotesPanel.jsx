@@ -111,6 +111,38 @@ export default function NotesPanel() {
     fetchNotes();
   };
 
+  const deleteNote = async (noteId) => {
+  const confirmDelete = window.confirm(
+    "Are you sure you want to delete this note?"
+  );
+
+  if (!confirmDelete) return;
+
+  try {
+    await axios.delete(`${API}/${noteId}`, {
+      headers: { Authorization: `Bearer ${token}` },
+    });
+
+    // If the deleted note is open, close it
+    if (selectedNote?._id === noteId) {
+      setSelectedNote(null);
+    }
+
+    // Cleanup unlocked cache
+    setUnlockedContent((prev) => {
+      const copy = { ...prev };
+      delete copy[noteId];
+      return copy;
+    });
+
+    fetchNotes();
+  } catch (err) {
+    console.error(err);
+    alert("Failed to delete note");
+  }
+};
+
+
   return (
     <div className="p-6 w-full relative z-10">
       <button
@@ -134,22 +166,32 @@ export default function NotesPanel() {
       ))}
 
       {/* VIEW NOTE */}
-      {selectedNote && (
-        <div className="border p-4 mt-4">
-          <h2 className="font-bold mb-2">{selectedNote.title}</h2>
-          <p className="mb-3">
-            {selectedNote.isLocked
-              ? unlockedContent[selectedNote._id]
-              : selectedNote.content}
-          </p>
-          <button
-            onClick={startEdit}
-            className="bg-yellow-500 px-3 py-1 rounded"
-          >
-            Edit
-          </button>
-        </div>
-      )}
+{selectedNote && (
+  <div className="border p-4 mt-4">
+    <h2 className="font-bold mb-2">{selectedNote.title}</h2>
+
+    <p className="mb-3">
+      {selectedNote.content}
+    </p>
+
+    <div className="flex gap-2">
+      <button
+        onClick={startEdit}
+        className="bg-yellow-500 px-3 py-1 rounded"
+      >
+        Edit
+      </button>
+
+      <button
+        onClick={() => deleteNote(selectedNote._id)}
+        className="bg-red-600 text-white px-3 py-1 rounded"
+      >
+        Delete
+      </button>
+    </div>
+  </div>
+)}
+
 
       {/* UNLOCK NOTE */}
       {passwordNote && (
